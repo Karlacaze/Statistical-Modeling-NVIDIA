@@ -1,0 +1,7 @@
+
+
+```{r}
+data <- read.csv("NVDA.csv")
+head(data)
+```
+
