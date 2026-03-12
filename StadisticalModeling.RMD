@@ -5,3 +5,19 @@ data <- read.csv("NVDA.csv")
 head(data)
 ```
 
+```{r}
+# Data manipulation
+library(tidyverse)
+
+# Statistics
+library(psych)
+
+# Visualization
+library(ggplot2)
+
+# Correlation plots
+library(corrplot)
+
+# Normality tests
+library(nortest)
+```
