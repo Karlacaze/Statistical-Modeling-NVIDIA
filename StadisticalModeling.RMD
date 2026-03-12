@@ -1,23 +1,91 @@
-
-
-```{r}
-data <- read.csv("NVDA.csv")
-head(data)
-```
-
-```{r}
-# Data manipulation
+# Import libraries
+## Data manipulation
 library(tidyverse)
-
-# Statistics
+## Statistics
 library(psych)
-
-# Visualization
+## Visualization
 library(ggplot2)
-
-# Correlation plots
+## Correlation plots
 library(corrplot)
-
-# Normality tests
+## Normality tests
 library(nortest)
-```
+
+nvidia <- read.csv("NVDA.csv")
+
+# Convert date column
+nvidia$Date <- as.Date(nvidia$Date)
+
+# View structure
+str(nvidia)
+
+# First rows
+head(nvidia)
+
+
+# --- Data Preparation ---
+
+## Missing Values
+colSums(is.na(nvidia))
+
+## Outlier detection
+boxplot(nvidia$Close, main="Boxplot of Closing Price")
+boxplot(nvidia$Volume, main="Boxplot of Trading Volume")  # eliminate outliers?
+
+
+# --- Descriptive Statistics ---
+describe(nvidia[,c("Open","High","Low","Close","Adj.Close","Volume")])
+
+
+# --- Time Series Visualization ---
+ggplot(nvidia, aes(x=Date, y=Close)) +
+  geom_line(color="blue") +
+  labs(title="NVIDIA Closing Price Over Time",
+       x="Date",
+       y="Closing Price")
+
+# New variable
+nvidia <- nvidia %>%
+  mutate(Return = (Close - Open)/Open)
+
+# --- Correlation Matrix ---
+cor_matrix <- cor(nvidia[,c("Open","High","Low","Close","Adj.Close","Volume")])
+cor_matrix
+corrplot(cor_matrix, method="color", type="upper")
+
+# --- Normality Test ---
+shapiro.test(nvidia$Close)  # error: sample size must be between 3 and 5000
+qqnorm(nvidia$Close)
+qqline(nvidia$Close, col="red")
+
+# --- Confidence Interval for Mean Closing Price ---
+t.test(nvidia$Close, conf.level = 0.95)
+# Interpretation: We estimate with 95% confidence that the average closing price lies between X and Y.
+
+# --- Correlation Analysis ---
+cor.test(nvidia$Open, nvidia$Close)
+cor.test(nvidia$Volume, nvidia$Close)
+# Interpretation: If p < 0.05 → significant relationship
+
+# --- Simple Linear Regression (Predict Close with Open) ---
+model_simple <- lm(Close ~ Open, data=nvidia)
+summary(model_simple)
+
+ggplot(nvidia, aes(Open, Close)) +
+  geom_point() +
+  geom_smooth(method="lm") +
+  labs(title="Regression: Open vs Close Price")
+
+# --- Multiple Linear Regression ---
+model_multiple <- lm(Close ~ Open + High + Low + Volume, data=nvidia)
+summary(model_multiple)
+
+# --- Model Diagnosis ---
+par(mfrow=c(2,2))
+plot(model_multiple)
+
+# --- Prediction Example ---
+predict(model_multiple,
+        newdata=data.frame(Open=900,
+                           High=910,
+                           Low=890,
+                           Volume=40000000))
