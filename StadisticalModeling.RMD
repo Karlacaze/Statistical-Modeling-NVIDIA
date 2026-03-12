@@ -6,8 +6,6 @@ head(data)
 ```
 
 ```{r}
-# Data manipulation
-library(tidyverse)
 
 # Statistics
 library(psych)
@@ -21,3 +19,11 @@ library(corrplot)
 # Normality tests
 library(nortest)
 ```
+
+
+
+```{r}
+summary(data)
+head(data)
+```
+
